@@ -1,6 +1,6 @@
-"""
-Command-line interface for the Ilanya Trait Engine.
-"""
+
+# Command-line interface for the Ilanya Trait Engine.
+
 
 import argparse
 import sys

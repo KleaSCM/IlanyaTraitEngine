@@ -1,6 +1,4 @@
-"""
-Trait data models and structures for the Ilanya Trait Engine.
-"""
+# Trait data models and structures for the Ilanya Trait Engine.
 
 from .trait_data import TraitData, TraitVector, TraitMatrix
 from .trait_types import TraitType, TraitCategory, TraitDimension

@@ -13,8 +13,8 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 setup(
     name="ilanya-trait-engine",
     version="0.1.0",
-    author="Ilanya AI Team",
-    author_email="team@ilanya.ai",
+    author="KleaSCM",
+    author_email="KleaSCM@gmail.com",
     description="A neural network-based trait engine for cognitive AI systems",
     long_description=long_description,
     long_description_content_type="text/markdown",

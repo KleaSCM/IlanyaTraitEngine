@@ -31,7 +31,7 @@ class TraitType(Enum):
 
 @dataclass
 class TraitVector:
-    """Simple trait vector representation."""
+    # """Simple trait vector representation."""
     trait_type: TraitType
     value: float
     confidence: float
@@ -44,7 +44,7 @@ class TraitVector:
 
 
 class SimpleTraitEmbedding(nn.Module):
-    """Simple trait embedding layer."""
+    # """Simple trait embedding layer."""
     
     def __init__(self, num_traits: int, embedding_dim: int):
         super().__init__()
@@ -75,7 +75,7 @@ class SimpleTraitEmbedding(nn.Module):
 
 
 class SimpleTraitTransformer(nn.Module):
-    """Simplified trait transformer for demo."""
+    # """Simplified trait transformer for demo."""
     
     def __init__(self, num_traits: int, embedding_dim: int, num_layers: int = 2):
         super().__init__()
@@ -128,7 +128,7 @@ class SimpleTraitTransformer(nn.Module):
 
 
 class SimpleTraitEngine:
-    """Simplified trait engine for demonstration."""
+    # """Simplified trait engine for demonstration."""
     
     def __init__(self, num_traits: int = 5, embedding_dim: int = 32):
         self.num_traits = num_traits
@@ -145,7 +145,7 @@ class SimpleTraitEngine:
         self.loss_fn = nn.MSELoss()
     
     def process_traits(self, traits: Dict[TraitType, TraitVector]) -> Dict[str, Any]:
-        """Process traits through the neural network."""
+        # """Process traits through the neural network."""
         # Convert to tensors
         trait_values = torch.zeros(self.num_traits)
         trait_confidences = torch.zeros(self.num_traits)
@@ -185,7 +185,7 @@ class SimpleTraitEngine:
     
     def evolve_traits(self, traits: Dict[TraitType, TraitVector], 
                      experience: Dict[str, float]) -> Dict[TraitType, TraitVector]:
-        """Evolve traits based on experience."""
+        # """Evolve traits based on experience."""
         # Process current traits
         results = self.process_traits(traits)
         
@@ -225,7 +225,7 @@ class SimpleTraitEngine:
 
 
 def main():
-    """Main demonstration function."""
+    # """Main demonstration function."""
     print("=== Ilanya Trait Engine Simple Demo ===\n")
     
     # Initialize engine

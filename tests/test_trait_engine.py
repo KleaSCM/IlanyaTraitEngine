@@ -24,33 +24,27 @@ from src.trait_models.trait_data import TraitVector, TraitMatrix, TraitData, Tra
 from src.trait_models.trait_state import TraitState, CognitiveState
 
 
-class TestTraitTypes:
-    """Test trait type definitions."""
-    
-    def test_trait_type_enum(self):
-        """Test that trait types are properly defined."""
+class TestTraitTypes: #T est trait type definitions.
+    def test_trait_type_enum(self): # Test that trait types are properly defined.
         assert TraitType.OPENNESS.value == "openness"
         assert TraitType.CREATIVITY.value == "creativity"
         assert TraitType.ADAPTABILITY.value == "adaptability"
     
-    def test_trait_categories(self):
-        """Test trait categories."""
+    def test_trait_categories(self): # Test trait categories.
         assert TraitCategory.PERSONALITY.value == "personality"
         assert TraitCategory.COGNITIVE.value == "cognitive"
         assert TraitCategory.BEHAVIORAL.value == "behavioral"
     
     def test_trait_dimensions(self):
-        """Test trait dimensions."""
+        # Test trait dimensions.
         assert TraitDimension.INTENSITY.value == "intensity"
         assert TraitDimension.STABILITY.value == "stability"
         assert TraitDimension.PLASTICITY.value == "plasticity"
 
 
-class TestTraitData:
-    """Test trait data structures."""
+class TestTraitData: # Test trait data structures.
     
-    def test_trait_vector_creation(self):
-        """Test creating a trait vector."""
+    def test_trait_vector_creation(self): # Test creating a trait vector.
         trait_vector = TraitVector(
             trait_type=TraitType.OPENNESS,
             value=0.7,
@@ -61,9 +55,7 @@ class TestTraitData:
         assert trait_vector.value == 0.7
         assert trait_vector.confidence == 0.9
     
-    def test_trait_vector_validation(self):
-        """Test trait vector validation."""
-        # Should raise error for invalid values
+    def test_trait_vector_validation(self):         # Test trait vector validation.Should raise error for invalid values
         with pytest.raises(ValueError):
             TraitVector(TraitType.OPENNESS, 1.5, 0.9)  # Value > 1.0
         
@@ -71,7 +63,7 @@ class TestTraitData:
             TraitVector(TraitType.OPENNESS, 0.7, -0.1)  # Confidence < 0.0
     
     def test_trait_matrix_creation(self):
-        """Test creating a trait matrix."""
+        # Test creating a trait matrix.
         traits = {
             TraitType.OPENNESS: TraitVector(TraitType.OPENNESS, 0.7, 0.9),
             TraitType.CREATIVITY: TraitVector(TraitType.CREATIVITY, 0.8, 0.8)
@@ -84,7 +76,7 @@ class TestTraitData:
         assert trait_matrix.interaction_matrix.shape == (2, 2)
     
     def test_trait_data_builder(self):
-        """Test trait data builder."""
+        # Test trait data builder.
         builder = TraitDataBuilder()
         builder.add_trait(TraitType.OPENNESS, 0.7, 0.9)
         builder.add_trait(TraitType.CREATIVITY, 0.8, 0.8)
@@ -97,12 +89,10 @@ class TestTraitData:
         assert TraitType.OPENNESS in trait_data.trait_matrix.traits
         assert TraitType.CREATIVITY in trait_data.trait_matrix.traits
 
-
 class TestTraitState:
-    """Test trait state tracking."""
-    
+    # Test trait state tracking.
     def test_trait_state_creation(self):
-        """Test creating a trait state."""
+        # Test creating a trait state.
         trait_state = TraitState(
             trait_type=TraitType.OPENNESS,
             current_value=0.7,
@@ -117,7 +107,7 @@ class TestTraitState:
         assert trait_state.confidence == 0.9
     
     def test_cognitive_state_creation(self):
-        """Test creating a cognitive state."""
+        # Test creating a cognitive state.
         trait_states = {
             TraitType.OPENNESS: TraitState(TraitType.OPENNESS, 0.7, confidence=0.9),
             TraitType.CREATIVITY: TraitState(TraitType.CREATIVITY, 0.8, confidence=0.8)
@@ -138,7 +128,7 @@ class TestTraitState:
         assert cognitive_state.emotional_state == 0.6
     
     def test_cognitive_state_validation(self):
-        """Test cognitive state validation."""
+        # Test cognitive state validation.
         trait_states = {
             TraitType.OPENNESS: TraitState(TraitType.OPENNESS, 0.7, confidence=0.9)
         }
@@ -152,10 +142,9 @@ class TestTraitState:
 
 
 class TestNeuralNetworkComponents:
-    """Test neural network components."""
-    
+    #Test neural network components.
     def test_trait_embedding(self):
-        """Test trait embedding layer."""
+        #Test trait embedding layer.
         from src.neural_networks.trait_transformer import TraitEmbedding
         
         embedding = TraitEmbedding(num_traits=20, embedding_dim=64, input_dim=512)
@@ -171,7 +160,7 @@ class TestNeuralNetworkComponents:
         assert output.shape == (batch_size, num_traits, 64)
     
     def test_positional_encoding(self):
-        """Test positional encoding."""
+        #Test positional encoding.
         from src.neural_networks.trait_transformer import PositionalEncoding
         
         pos_encoding = PositionalEncoding(embedding_dim=64, max_seq_length=100)

@@ -80,10 +80,3 @@ IlanyaTraitEngine/
 └── docs/                      # Documentation
 ```
 
-## Development
-
-This project is designed to be eventually ported to Rust for integration into AI agents. The Python implementation serves as a prototype and research platform.
-
-## License
-
-MIT License 

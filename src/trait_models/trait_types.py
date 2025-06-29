@@ -17,17 +17,13 @@ import numpy as np
 
 
 class TraitType(Enum):
-    """
-    Core trait types for cognitive AI systems.
-    
-    This enum defines all the different personality traits that can be modeled
-    and evolved by the trait engine. Traits are organized into categories:
-    - Personality: Big Five personality traits
-    - Cognitive: Mental processing abilities
-    - Behavioral: Action and decision patterns
-    - Emotional: Affective and emotional responses
-    """
-    
+    # Core trait types for cognitive AI systems.
+    # This enum defines all the different personality traits that can be modeled
+    # and evolved by the trait engine. Traits are organized into categories:
+     # Personality: Big Five personality traits
+     # Cognitive: Mental processing abilities
+     #Behavioral: Action and decision patterns
+     #Emotional: Affective and emotional responses
     # Personality traits - Based on Big Five model
     OPENNESS = "openness"                    # Openness to new experiences and ideas
     CONSCIENTIOUSNESS = "conscientiousness"  # Self-discipline and organization
@@ -59,12 +55,10 @@ class TraitType(Enum):
 
 
 class TraitCategory(Enum):
-    """
-    Categories that group related traits.
-    
-    Traits are organized into categories to facilitate processing and analysis.
-    Each category represents a different aspect of cognitive functioning.
-    """
+
+    # Categories that group related traits.    
+    # Traits are organized into categories to facilitate processing and analysis.
+    # Each category represents a different aspect of cognitive functioning.
     
     PERSONALITY = "personality"    # Core personality characteristics
     COGNITIVE = "cognitive"        # Mental processing abilities
@@ -74,13 +68,9 @@ class TraitCategory(Enum):
     ADAPTIVE = "adaptive"          # Adaptation and learning capabilities
 
 
-class TraitDimension(Enum):
-    """
-    Dimensions along which traits can vary.
-    
-    These dimensions define the different aspects of how traits behave
-    and interact within the cognitive system.
-    """
+class TraitDimension(Enum):    # Dimensions along which traits can vary.
+    # These dimensions define the different aspects of how traits behave
+    # and interact within the cognitive system.
     
     INTENSITY = "intensity"        # How strong the trait is (0-1 scale)
     STABILITY = "stability"        # How resistant to change (0-1 scale)
@@ -89,14 +79,9 @@ class TraitDimension(Enum):
 
 
 class TraitMetadata:
-    """
-    Metadata for trait definitions.
-    
-    Contains comprehensive information about each trait including its
-    relationships with other traits, evolution constraints, and behavioral
-    characteristics.
-    """
-    
+    # Metadata for trait definitions.
+    # Contains comprehensive information about each trait including its
+    # relationships with other traits, evolution constraints, and behavioral characteristics.
     def __init__(
         self,
         name: str,                           # Human-readable trait name
@@ -116,12 +101,8 @@ class TraitMetadata:
         self.conflicts = conflicts or []
     
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert to dictionary representation.
-        
-        Returns:
-            Dictionary containing all trait metadata for serialization
-        """
+        #Convert to dictionary representation.
+        # Returns: Dictionary containing all trait metadata for serialization        
         return {
             'name': self.name,
             'trait_type': self.trait_type.value,
@@ -131,7 +112,6 @@ class TraitMetadata:
             'dependencies': [dep.value for dep in self.dependencies],
             'conflicts': [conf.value for conf in self.conflicts]
         }
-
 
 # Predefined trait metadata - Comprehensive trait definitions
 TRAIT_METADATA = {

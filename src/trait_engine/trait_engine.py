@@ -26,12 +26,12 @@ from ..trait_models.trait_state import TraitState, CognitiveState
 
 @dataclass
 class TraitEngineConfig:
-    """
-    Configuration for the trait engine.
     
-    Contains all hyperparameters and settings for the trait engine including
-    neural network architecture, processing parameters, and evolution settings.
-    """
+    # Configuration for the trait engine.
+    
+    # Contains all hyperparameters and settings for the trait engine including
+    # neural network architecture, processing parameters, and evolution settings.
+    
     
     # Neural network configuration - Architecture parameters
     input_dim: int = 512                    # Input dimension for trait data
@@ -54,21 +54,21 @@ class TraitEngineConfig:
 
 
 class TraitEngine:
-    """
-    Main trait engine for processing and evolving traits using neural networks.
     
-    Orchestrates the complete trait processing pipeline including neural network
-    inference, trait evolution based on experience, and cognitive state management.
-    This is the primary interface for integrating trait processing into AI agents.
-    """
+    # Main trait engine for processing and evolving traits using neural networks.
+    
+    # Orchestrates the complete trait processing pipeline including neural network
+    # inference, trait evolution based on experience, and cognitive state management.
+    # This is the primary interface for integrating trait processing into AI agents.
+    
     
     def __init__(self, config: Optional[TraitEngineConfig] = None):
-        """
-        Initialize the trait engine.
         
-        Args:
-            config: Configuration object, uses default if None
-        """
+        # Initialize the trait engine.
+        
+        # Args:
+        #     config: Configuration object, uses default if None
+        
         self.config = config or TraitEngineConfig()
         
         # Initialize neural network with transformer architecture
@@ -104,18 +104,18 @@ class TraitEngine:
         self.trait_history: List[CognitiveState] = []
         
     def process_traits(self, trait_data: TraitData) -> Dict[str, Any]:
-        """
-        Process trait data through the neural network.
         
-        Takes raw trait data and processes it through the transformer network
-        to generate predictions, evolution signals, and interaction weights.
+        # Process trait data through the neural network.
         
-        Args:
-            trait_data: Input trait data containing trait values and confidences
+        # Takes raw trait data and processes it through the transformer network
+        # to generate predictions, evolution signals, and interaction weights.
+        
+        # Args:
+        #     trait_data: Input trait data containing trait values and confidences
             
-        Returns:
-            Dictionary containing processed results including predictions and signals
-        """
+        # Returns:
+        #     Dictionary containing processed results including predictions and signals
+        
         # Convert trait data to tensors suitable for neural network input
         trait_tensor, trait_indices = self._prepare_trait_tensors(trait_data)
         
@@ -133,19 +133,19 @@ class TraitEngine:
         return results
     
     def evolve_traits(self, trait_data: TraitData, experience_data: Dict[str, Any]) -> TraitData:
-        """
-        Evolve traits based on experience data.
         
-        Applies experience-based modifications to traits using the neural network's
-        evolution signals and experience data to simulate trait development over time.
+        # Evolve traits based on experience data.
         
-        Args:
-            trait_data: Current trait data to evolve
-            experience_data: Experience data affecting trait evolution
+        # Applies experience-based modifications to traits using the neural network's
+        # evolution signals and experience data to simulate trait development over time.
+        
+        # Args:
+        #     trait_data: Current trait data to evolve
+        #     experience_data: Experience data affecting trait evolution
             
-        Returns:
-            Evolved trait data with updated values
-        """
+        # Returns:
+        #     Evolved trait data with updated values
+        
         # Process current traits to get baseline predictions
         current_results = self.process_traits(trait_data)
         
@@ -160,19 +160,19 @@ class TraitEngine:
         return evolved_traits
     
     def train_step(self, batch_data: List[TraitData], targets: List[TraitData]) -> Dict[str, float]:
-        """
-        Perform a single training step.
         
-        Trains the neural network on a batch of trait data using supervised learning.
-        Computes multiple loss components and updates network parameters.
+        # Perform a single training step.
         
-        Args:
-            batch_data: Batch of input trait data
-            targets: Batch of target trait data for supervised learning
+        # Trains the neural network on a batch of trait data using supervised learning.
+        # Computes multiple loss components and updates network parameters.
+        
+        # Args:
+        #     batch_data: Batch of input trait data
+        #     targets: Batch of target trait data for supervised learning
             
-        Returns:
-            Dictionary containing loss values for monitoring training progress
-        """
+        # Returns:
+        #     Dictionary containing loss values for monitoring training progress
+        
         # Set network to training mode
         self.neural_network.train()
         
@@ -233,18 +233,18 @@ class TraitEngine:
         }
     
     def update_cognitive_state(self, trait_data: TraitData) -> CognitiveState:
-        """
-        Update the current cognitive state with new trait data.
         
-        Creates or updates the cognitive state tracking system with new trait
-        information, maintaining history and computing state metrics.
+        # Update the current cognitive state with new trait data.
         
-        Args:
-            trait_data: New trait data to incorporate into cognitive state
+        # Creates or updates the cognitive state tracking system with new trait
+        # information, maintaining history and computing state metrics.
+        
+        # Args:
+        #     trait_data: New trait data to incorporate into cognitive state
             
-        Returns:
-            Updated cognitive state with current trait information
-        """
+        # Returns:
+        #     Updated cognitive state with current trait information
+        
         # Convert trait data to trait states for cognitive tracking
         trait_states = {}
         for trait_type, trait_vector in trait_data.trait_matrix.traits.items():
@@ -280,17 +280,17 @@ class TraitEngine:
         return cognitive_state
     
     def _prepare_trait_tensors(self, trait_data: TraitData) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Prepare trait data for neural network input.
         
-        Converts TraitData objects into tensors suitable for neural network processing.
+        # Prepare trait data for neural network input.
         
-        Args:
-            trait_data: Input trait data
+        # Converts TraitData objects into tensors suitable for neural network processing.
+        
+        # Args:
+        #     trait_data: Input trait data
             
-        Returns:
-            Tuple of (trait_tensor, trait_indices) for neural network input
-        """
+        # Returns:
+        #     Tuple of (trait_tensor, trait_indices) for neural network input
+        
         num_traits = len(trait_data.trait_matrix.traits)
         
         # Create trait tensor with values and confidences
@@ -307,19 +307,19 @@ class TraitEngine:
     
     def _process_network_outputs(self, outputs: Dict[str, torch.Tensor], 
                                 original_data: TraitData) -> Dict[str, Any]:
-        """
-        Process neural network outputs into usable results.
         
-        Converts raw network outputs into structured data with trait predictions
-        and other processed information.
+        # Process neural network outputs into usable results.
         
-        Args:
-            outputs: Raw neural network outputs
-            original_data: Original input data for reference
+        # Converts raw network outputs into structured data with trait predictions
+        # and other processed information.
+        
+        # Args:
+        #     outputs: Raw neural network outputs
+        #     original_data: Original input data for reference
             
-        Returns:
-            Dictionary containing processed results
-        """
+        # Returns:
+        #     Dictionary containing processed results
+        
         # Convert tensors to numpy arrays for easier processing
         trait_predictions = outputs['trait_predictions'].cpu().numpy()
         evolution_signals = outputs['evolution_signals'].cpu().numpy()
@@ -344,20 +344,20 @@ class TraitEngine:
     def _calculate_evolution_signals(self, trait_data: TraitData, 
                                    experience_data: Dict[str, Any],
                                    current_results: Dict[str, Any]) -> np.ndarray:
-        """
-        Calculate evolution signals based on experience and current state.
         
-        Combines neural network evolution signals with experience data to
-        determine how traits should evolve over time.
+        # Calculate evolution signals based on experience and current state.
         
-        Args:
-            trait_data: Current trait data
-            experience_data: Experience data affecting evolution
-            current_results: Current neural network results
+        # Combines neural network evolution signals with experience data to
+        # determine how traits should evolve over time.
+        
+        # Args:
+        #     trait_data: Current trait data
+        #     experience_data: Experience data affecting evolution
+        #     current_results: Current neural network results
             
-        Returns:
-            Array of evolution signals for each trait
-        """
+        # Returns:
+        #     Array of evolution signals for each trait
+        
         # Start with neural network evolution signals
         evolution_signals = current_results['evolution_signals'].copy()
         
@@ -376,19 +376,19 @@ class TraitEngine:
     
     def _apply_trait_evolution(self, trait_data: TraitData, 
                              evolution_signals: np.ndarray) -> TraitData:
-        """
-        Apply evolution signals to trait data.
         
-        Uses evolution signals to modify trait values while respecting
-        plasticity constraints and value bounds.
+        # Apply evolution signals to trait data.
         
-        Args:
-            trait_data: Original trait data
-            evolution_signals: Signals indicating how traits should evolve
+        # Uses evolution signals to modify trait values while respecting
+        # plasticity constraints and value bounds.
+        
+        # Args:
+        #     trait_data: Original trait data
+        #     evolution_signals: Signals indicating how traits should evolve
             
-        Returns:
-            Evolved trait data with updated values
-        """
+        # Returns:
+        #     Evolved trait data with updated values
+        
         evolved_traits = {}
         
         for i, (trait_type, trait_vector) in enumerate(trait_data.trait_matrix.traits.items()):
@@ -428,14 +428,14 @@ class TraitEngine:
         )
     
     def save_model(self, filepath: str):
-        """
-        Save the trained model to disk.
         
-        Saves model state, optimizer state, and configuration for later loading.
+        # Save the trained model to disk.
         
-        Args:
-            filepath: Path where to save the model
-        """
+        # Saves model state, optimizer state, and configuration for later loading.
+        
+        # Args:
+        #     filepath: Path where to save the model
+        
         torch.save({
             'model_state_dict': self.neural_network.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
@@ -443,14 +443,14 @@ class TraitEngine:
         }, filepath)
     
     def load_model(self, filepath: str):
-        """
-        Load a trained model from disk.
         
-        Loads model state, optimizer state, and configuration from a saved file.
+        # Load a trained model from disk.
         
-        Args:
-            filepath: Path to the saved model file
-        """
+        # Loads model state, optimizer state, and configuration from a saved file.
+        
+        # Args:
+        #     filepath: Path to the saved model file
+        
         checkpoint = torch.load(filepath, map_location=self.device)
         self.neural_network.load_state_dict(checkpoint['model_state_dict'])
         self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])

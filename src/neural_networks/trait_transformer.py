@@ -21,13 +21,13 @@ from dataclasses import dataclass
 
 @dataclass
 class TraitTransformerConfig:
-    """
-    Configuration for the Trait Transformer.
     
-    Contains all hyperparameters and architectural choices for the trait
-    transformer neural network. This allows for easy experimentation and
-    configuration management.
-    """
+    # Configuration for the Trait Transformer.
+    
+    # Contains all hyperparameters and architectural choices for the trait
+    # transformer neural network. This allows for easy experimentation and
+    # configuration management.
+    
     
     input_dim: int = 512                    # Input dimension for trait data
     hidden_dim: int = 1024                  # Hidden layer dimension
@@ -42,23 +42,23 @@ class TraitTransformerConfig:
 
 
 class TraitEmbedding(nn.Module):
-    """
-    Embedding layer for trait representations.
     
-    Converts trait data (type, value, confidence) into high-dimensional
-    embeddings suitable for transformer processing. Combines trait type
-    embeddings with value/confidence projections.
-    """
+    # Embedding layer for trait representations.
+    
+    # Converts trait data (type, value, confidence) into high-dimensional
+    # embeddings suitable for transformer processing. Combines trait type
+    # embeddings with value/confidence projections.
+    
     
     def __init__(self, num_traits: int, embedding_dim: int, input_dim: int):
-        """
-        Initialize the trait embedding layer.
         
-        Args:
-            num_traits: Number of different trait types
-            embedding_dim: Dimension of the output embeddings
-            input_dim: Input dimension (unused, kept for compatibility)
-        """
+        # Initialize the trait embedding layer.
+        
+        # Args:
+        #     num_traits: Number of different trait types
+        #     embedding_dim: Dimension of the output embeddings
+        #     input_dim: Input dimension (unused, kept for compatibility)
+        
         super().__init__()
         self.num_traits = num_traits
         self.embedding_dim = embedding_dim
@@ -78,17 +78,17 @@ class TraitEmbedding(nn.Module):
         
     def forward(self, trait_values: torch.Tensor, trait_confidences: torch.Tensor, 
                 trait_indices: torch.Tensor) -> torch.Tensor:
-        """
-        Forward pass for trait embedding.
         
-        Args:
-            trait_values: Tensor of shape (batch_size, num_traits) - trait strength values
-            trait_confidences: Tensor of shape (batch_size, num_traits) - confidence scores
-            trait_indices: Tensor of shape (batch_size, num_traits) - trait type indices
+        # Forward pass for trait embedding.
+        
+        # Args:
+        #     trait_values: Tensor of shape (batch_size, num_traits) - trait strength values
+        #     trait_confidences: Tensor of shape (batch_size, num_traits) - confidence scores
+        #     trait_indices: Tensor of shape (batch_size, num_traits) - trait type indices
             
-        Returns:
-            Embedded traits of shape (batch_size, num_traits, embedding_dim)
-        """
+        # Returns:
+        #     Embedded traits of shape (batch_size, num_traits, embedding_dim)
+        
         batch_size, num_traits = trait_values.shape
         
         # Get trait type embeddings from learned embedding table
@@ -109,21 +109,21 @@ class TraitEmbedding(nn.Module):
 
 
 class PositionalEncoding(nn.Module):
-    """
-    Positional encoding for sequence position information.
     
-    Adds position information to embeddings using sinusoidal functions.
-    This allows the transformer to understand the order of traits in the sequence.
-    """
+    # Positional encoding for sequence position information.
+    
+    # Adds position information to embeddings using sinusoidal functions.
+    # This allows the transformer to understand the order of traits in the sequence.
+    
     
     def __init__(self, embedding_dim: int, max_seq_length: int = 1000):
-        """
-        Initialize positional encoding.
         
-        Args:
-            embedding_dim: Dimension of the embeddings
-            max_seq_length: Maximum sequence length to support
-        """
+        # Initialize positional encoding.
+        
+        # Args:
+        #     embedding_dim: Dimension of the embeddings
+        #     max_seq_length: Maximum sequence length to support
+        
         super().__init__()
         self.embedding_dim = embedding_dim
         self.max_seq_length = max_seq_length
@@ -144,36 +144,36 @@ class PositionalEncoding(nn.Module):
         self.pe: torch.Tensor  # type: ignore
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Add positional encoding to input.
+    
+        # Add positional encoding to input.
         
-        Args:
-            x: Input tensor of shape (seq_len, batch_size, embedding_dim)
+        # Args:
+        #     x: Input tensor of shape (seq_len, batch_size, embedding_dim)
             
-        Returns:
-            Input with positional encoding added
-        """
+        # Returns:
+        #     Input with positional encoding added
+        
         return x + self.pe[:x.size(0), :]
 
 
 class MultiHeadTraitAttention(nn.Module):
-    """
-    Multi-head attention mechanism for trait relationships.
     
-    Implements scaled dot-product attention with multiple heads to capture
-    different types of relationships between traits. This is the core mechanism
-    for understanding how traits influence each other.
-    """
+    # Multi-head attention mechanism for trait relationships.
+    
+    # Implements scaled dot-product attention with multiple heads to capture
+    # different types of relationships between traits. This is the core mechanism
+    # for understanding how traits influence each other.
+    
     
     def __init__(self, embedding_dim: int, num_heads: int, dropout: float = 0.1):
-        """
-        Initialize multi-head attention.
         
-        Args:
-            embedding_dim: Dimension of input embeddings
-            num_heads: Number of attention heads
-            dropout: Dropout rate for attention weights
-        """
+        # Initialize multi-head attention.
+        
+        # Args:
+        #     embedding_dim: Dimension of input embeddings
+        #     num_heads: Number of attention heads
+        #     dropout: Dropout rate for attention weights
+        
         super().__init__()
         self.embedding_dim = embedding_dim
         self.num_heads = num_heads
@@ -193,16 +193,16 @@ class MultiHeadTraitAttention(nn.Module):
         self.scale = math.sqrt(self.head_dim)  # Scaling factor for attention scores
     
     def forward(self, x: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Forward pass for multi-head attention.
         
-        Args:
-            x: Input tensor of shape (batch_size, seq_len, embedding_dim)
-            mask: Optional attention mask of shape (batch_size, seq_len, seq_len)
+        # Forward pass for multi-head attention.
+        
+        # Args:
+        #     x: Input tensor of shape (batch_size, seq_len, embedding_dim)
+        #     mask: Optional attention mask of shape (batch_size, seq_len, seq_len)
             
-        Returns:
-            Output tensor of shape (batch_size, seq_len, embedding_dim)
-        """
+        # Returns:
+        #     Output tensor of shape (batch_size, seq_len, embedding_dim)
+        
         batch_size, seq_len, embedding_dim = x.shape
         
         # Project input to query, key, value representations
@@ -240,23 +240,23 @@ class MultiHeadTraitAttention(nn.Module):
 
 
 class TraitTransformerBlock(nn.Module):
-    """
-    Single transformer block for trait processing.
     
-    Combines multi-head attention with feed-forward network and residual
-    connections. This is the basic building block of the transformer architecture.
-    """
+    # Single transformer block for trait processing.
+    
+    # Combines multi-head attention with feed-forward network and residual
+    # connections. This is the basic building block of the transformer architecture.
+    
     
     def __init__(self, embedding_dim: int, num_heads: int, dropout: float = 0.1, activation: str = "gelu"):
-        """
-        Initialize transformer block.
         
-        Args:
-            embedding_dim: Dimension of embeddings
-            num_heads: Number of attention heads
-            dropout: Dropout rate
-            activation: Activation function for feed-forward network
-        """
+        # Initialize transformer block.
+        
+        # Args:
+        #     embedding_dim: Dimension of embeddings
+        #     num_heads: Number of attention heads
+        #     dropout: Dropout rate
+        #     activation: Activation function for feed-forward network
+        
         super().__init__()
         self.embedding_dim = embedding_dim
         
@@ -275,16 +275,15 @@ class TraitTransformerBlock(nn.Module):
         self.ff_norm = nn.LayerNorm(embedding_dim)
     
     def forward(self, x: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
-        """
-        Forward pass for transformer block.
         
-        Args:
-            x: Input tensor of shape (batch_size, seq_len, embedding_dim)
-            mask: Optional attention mask
+        # Forward pass for transformer block.
+        
+        # Args:
+        #     x: Input tensor of shape (batch_size, seq_len, embedding_dim)
+        #     mask: Optional attention mask
             
-        Returns:
-            Output tensor of shape (batch_size, seq_len, embedding_dim)
-        """
+        # Returns:
+        #     Output tensor of shape (batch_size, seq_len, embedding_dim)
         # Self-attention with residual connection and layer normalization
         attn_output = self.attention(x, mask)
         x = self.attention_norm(x + attn_output)  # Residual connection
@@ -297,21 +296,20 @@ class TraitTransformerBlock(nn.Module):
 
 
 class TraitTransformer(nn.Module):
-    """
-    Main trait transformer neural network.
     
-    Complete transformer architecture for processing trait data. Combines
-    embedding, positional encoding, multiple transformer blocks, and output
-    projections to generate trait predictions and evolution signals.
-    """
+    # Main trait transformer neural network.
+    
+    # Complete transformer architecture for processing trait data. Combines
+    # embedding, positional encoding, multiple transformer blocks, and output
+    # projections to generate trait predictions and evolution signals.
+    
     
     def __init__(self, config: TraitTransformerConfig):
-        """
-        Initialize trait transformer.
+        # Initialize trait transformer.
         
-        Args:
-            config: Configuration object containing all hyperparameters
-        """
+        # Args:
+        #     config: Configuration object containing all hyperparameters
+        
         super().__init__()
         self.config = config
         
@@ -349,20 +347,19 @@ class TraitTransformer(nn.Module):
         
     def forward(self, trait_data: torch.Tensor, trait_indices: torch.Tensor,
                 mask: Optional[torch.Tensor] = None) -> Dict[str, torch.Tensor]:
-        """
-        Forward pass for trait transformer.
+        # Forward pass for trait transformer.
         
-        Args:
-            trait_data: Tensor of shape (batch_size, num_traits, 2) with values and confidences
-            trait_indices: Tensor of shape (batch_size, num_traits) with trait type indices
-            mask: Optional attention mask
+        # Args:
+        #     trait_data: Tensor of shape (batch_size, num_traits, 2) with values and confidences
+        #     trait_indices: Tensor of shape (batch_size, num_traits) with trait type indices
+        #     mask: Optional attention mask
             
-        Returns:
-            Dictionary containing:
-            - trait_predictions: Predicted trait values and confidences
-            - evolution_signals: Evolution signals for each trait
-            - interaction_weights: Interaction weights between traits
-        """
+        # Returns:
+        #     Dictionary containing:
+        #     - trait_predictions: Predicted trait values and confidences
+        #     - evolution_signals: Evolution signals for each trait
+        #     - interaction_weights: Interaction weights between traits
+        
         batch_size, num_traits, _ = trait_data.shape
         
         # Extract values and confidences from input tensor
@@ -398,18 +395,18 @@ class TraitTransformer(nn.Module):
         }
     
     def get_trait_embeddings(self, trait_data: torch.Tensor, trait_indices: torch.Tensor) -> torch.Tensor:
-        """
-        Get trait embeddings without full forward pass.
         
-        Useful for extracting embeddings without computing all outputs.
+        # Get trait embeddings without full forward pass.
         
-        Args:
-            trait_data: Input trait data tensor
-            trait_indices: Trait type indices
+        # Useful for extracting embeddings without computing all outputs.
+        
+        # Args:
+        #     trait_data: Input trait data tensor
+        #     trait_indices: Trait type indices
             
-        Returns:
-            Trait embeddings tensor
-        """
+        # Returns:
+        #     Trait embeddings tensor
+
         batch_size, num_traits, _ = trait_data.shape
         
         # Extract values and confidences
