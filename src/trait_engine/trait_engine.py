@@ -160,19 +160,20 @@ class TraitEngine:
         return evolved_traits
     
     def train_step(self, batch_data: List[TraitData], targets: List[TraitData]) -> Dict[str, float]:
+        """
+        Perform a single training step.
         
-        # Perform a single training step.
+        Trains the neural network on a batch of trait data using supervised learning.
+        Computes multiple loss components and updates network parameters.
+        Includes identity preservation loss to protect core identity traits.
         
-        # Trains the neural network on a batch of trait data using supervised learning.
-        # Computes multiple loss components and updates network parameters.
-        
-        # Args:
-        #     batch_data: Batch of input trait data
-        #     targets: Batch of target trait data for supervised learning
+        Args:
+            batch_data: Batch of input trait data
+            targets: Batch of target trait data for supervised learning
             
-        # Returns:
-        #     Dictionary containing loss values for monitoring training progress
-        
+        Returns:
+            Dictionary containing loss values for monitoring training progress
+        """
         # Set network to training mode
         self.neural_network.train()
         
@@ -217,8 +218,13 @@ class TraitEngine:
             torch.zeros_like(outputs['evolution_signals'])  # Placeholder target
         )
         
+        # IDENTITY PRESERVATION LOSS: Teach network to preserve identity traits
+        identity_loss = self._compute_identity_preservation_loss(
+            batch_tensor, outputs['trait_predictions'], batch_indices
+        )
+        
         # Combine losses for total loss
-        total_loss = trait_loss + confidence_loss + evolution_loss
+        total_loss = trait_loss + confidence_loss + evolution_loss + identity_loss
         
         # Backward pass and parameter updates
         self.optimizer.zero_grad()  # Clear previous gradients
@@ -229,8 +235,50 @@ class TraitEngine:
             'total_loss': total_loss.item(),
             'trait_loss': trait_loss.item(),
             'confidence_loss': confidence_loss.item(),
-            'evolution_loss': evolution_loss.item()
+            'evolution_loss': evolution_loss.item(),
+            'identity_loss': identity_loss.item()
         }
+    
+    def _compute_identity_preservation_loss(self, input_traits: torch.Tensor, 
+                                          predicted_traits: torch.Tensor,
+                                          trait_indices: torch.Tensor) -> torch.Tensor:
+        """
+        Compute identity preservation loss.
+        
+        Penalizes the network for changing identity traits during processing.
+        This teaches the network to preserve core identity while allowing
+        personality traits to evolve.
+        
+        Args:
+            input_traits: Original input trait values
+            predicted_traits: Network predictions
+            trait_indices: Trait type indices
+            
+        Returns:
+            Identity preservation loss value
+        """
+        from ..trait_models.trait_types import IDENTITY_PROTECTED_TRAITS, TraitType
+        
+        # Create mask for identity traits
+        identity_mask = torch.zeros_like(trait_indices, dtype=torch.bool)
+        
+        for i, trait_type in enumerate(TraitType):
+            if trait_type in IDENTITY_PROTECTED_TRAITS:
+                identity_mask |= (trait_indices == i)
+        
+        if not identity_mask.any():
+            return torch.tensor(0.0, device=self.device)
+        
+        # Extract identity trait values
+        input_identity = input_traits[:, :, 0][identity_mask]  # Original values
+        pred_identity = predicted_traits[:, :, 0][identity_mask]  # Predicted values
+        
+        # Compute loss: penalize changes to identity traits
+        identity_loss = self.trait_loss_fn(pred_identity, input_identity)
+        
+        # Apply higher weight to identity preservation
+        identity_weight = 10.0  # Stronger penalty for identity changes
+        return identity_loss * identity_weight
     
     def update_cognitive_state(self, trait_data: TraitData) -> CognitiveState:
         

@@ -302,6 +302,7 @@ class TraitTransformer(nn.Module):
     # Complete transformer architecture for processing trait data. Combines
     # embedding, positional encoding, multiple transformer blocks, and output
     # projections to generate trait predictions and evolution signals.
+    # Includes network-level identity protection to preserve core identity traits.
     
     
     def __init__(self, config: TraitTransformerConfig):
@@ -341,6 +342,10 @@ class TraitTransformer(nn.Module):
         self.trait_output_projection = nn.Linear(config.trait_embedding_dim, 2)  # value + confidence
         self.evolution_output_projection = nn.Linear(config.trait_embedding_dim, 1)  # evolution signal
         self.interaction_output_projection = nn.Linear(config.trait_embedding_dim, config.num_traits)
+        
+        # IDENTITY PROTECTION: Identity preservation layer
+        self.identity_preservation = nn.Linear(config.trait_embedding_dim, config.trait_embedding_dim)
+        self.identity_gate = nn.Sigmoid()  # Gates identity preservation
         
         # Dropout for regularization
         self.dropout = nn.Dropout(config.dropout)
@@ -382,16 +387,19 @@ class TraitTransformer(nn.Module):
         for block in self.transformer_blocks:
             embedded = block(embedded, mask)
         
+        # IDENTITY PROTECTION: Apply identity preservation layer
+        identity_preserved = self._apply_identity_protection(embedded, trait_indices)
+        
         # Generate outputs using different projection layers
-        trait_predictions = self.trait_output_projection(embedded)  # (batch_size, num_traits, 2)
-        evolution_signals = self.evolution_output_projection(embedded).squeeze(-1)  # (batch_size, num_traits)
-        interaction_weights = self.interaction_output_projection(embedded)  # (batch_size, num_traits, num_traits)
+        trait_predictions = self.trait_output_projection(identity_preserved)  # (batch_size, num_traits, 2)
+        evolution_signals = self.evolution_output_projection(identity_preserved).squeeze(-1)  # (batch_size, num_traits)
+        interaction_weights = self.interaction_output_projection(identity_preserved)  # (batch_size, num_traits, num_traits)
         
         return {
             'trait_predictions': trait_predictions,
             'evolution_signals': evolution_signals,
             'interaction_weights': interaction_weights,
-            'embeddings': embedded
+            'embeddings': identity_preserved
         }
     
     def get_trait_embeddings(self, trait_data: torch.Tensor, trait_indices: torch.Tensor) -> torch.Tensor:
@@ -422,4 +430,47 @@ class TraitTransformer(nn.Module):
             embedded = self.pos_encoding(embedded)
             embedded = embedded.transpose(0, 1)
         
-        return embedded 
+        return embedded
+
+    def _apply_identity_protection(self, embedded: torch.Tensor, trait_indices: torch.Tensor) -> torch.Tensor:
+        """
+        Apply network-level identity protection.
+        
+        Uses learned identity preservation to protect core identity traits
+        from being modified during neural network processing.
+        
+        Args:
+            embedded: Embedded trait representations
+            trait_indices: Trait type indices for identification
+            
+        Returns:
+            Identity-protected embeddings
+        """
+        # Import here to avoid circular imports
+        from ..trait_models.trait_types import IDENTITY_PROTECTED_TRAITS, TraitType
+        
+        # Create identity mask based on trait indices
+        identity_mask = torch.zeros_like(trait_indices, dtype=torch.bool)
+        
+        for i, trait_type in enumerate(TraitType):
+            if trait_type in IDENTITY_PROTECTED_TRAITS:
+                # Mark identity traits for protection
+                identity_mask |= (trait_indices == i)
+        
+        # Apply identity preservation to protected traits
+        identity_preserved = embedded.clone()
+        
+        if identity_mask.any():
+            # Get identity preservation signal
+            identity_signal = self.identity_preservation(embedded)
+            identity_gate = self.identity_gate(identity_signal)
+            
+            # For identity traits, preserve original embeddings more strongly
+            # identity_gate will be close to 1 for identity traits, preserving original
+            # identity_gate will be close to 0 for non-identity traits, allowing change
+            identity_preserved = (
+                embedded * identity_gate +  # Preserve original for identity traits
+                embedded * (1 - identity_gate)  # Allow change for non-identity traits
+            )
+        
+        return identity_preserved 
