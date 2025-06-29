@@ -1,0 +1,56 @@
+# Default configuration for the Ilanya Trait Engine
+
+# Neural Network Configuration
+neural_network:
+  input_dim: 512
+  hidden_dim: 1024
+  num_layers: 6
+  num_heads: 8
+  dropout: 0.1
+  num_traits: 20
+  trait_embedding_dim: 64
+  max_seq_length: 1000
+  use_positional_encoding: true
+  activation: "gelu"
+
+# Training Configuration
+training:
+  batch_size: 32
+  learning_rate: 1e-4
+  weight_decay: 1e-5
+  max_epochs: 100
+  early_stopping_patience: 10
+  gradient_clip_norm: 1.0
+
+# Evolution Configuration
+evolution:
+  evolution_rate: 0.01
+  stability_threshold: 0.1
+  plasticity_factor: 0.5
+  max_evolution_per_step: 0.1
+
+# Memory Configuration
+memory:
+  max_history_length: 1000
+  memory_decay_rate: 0.95
+  importance_threshold: 0.1
+
+# Processing Configuration
+processing:
+  confidence_threshold: 0.5
+  trait_interaction_threshold: 0.3
+  evolution_signal_threshold: 0.05
+
+# Logging Configuration
+logging:
+  log_level: "INFO"
+  save_checkpoints: true
+  checkpoint_interval: 10
+  tensorboard_logging: true
+  wandb_logging: false
+
+# Device Configuration
+device:
+  use_cuda: true
+  cuda_device: 0
+  mixed_precision: false 
