@@ -447,30 +447,47 @@ class TraitTransformer(nn.Module):
             Identity-protected embeddings
         """
         # Import here to avoid circular imports
-        from ..trait_models.trait_types import IDENTITY_PROTECTED_TRAITS, TraitType
+        from ..trait_models.trait_types import PERMANENTLY_PROTECTED_TRAITS, PARTIALLY_PROTECTED_TRAITS, TraitType
         
-        # Create identity mask based on trait indices
-        identity_mask = torch.zeros_like(trait_indices, dtype=torch.bool)
+        # Create protection masks based on trait indices
+        permanent_mask = torch.zeros_like(trait_indices, dtype=torch.bool)
+        partial_mask = torch.zeros_like(trait_indices, dtype=torch.bool)
         
         for i, trait_type in enumerate(TraitType):
-            if trait_type in IDENTITY_PROTECTED_TRAITS:
-                # Mark identity traits for protection
-                identity_mask |= (trait_indices == i)
+            if trait_type in PERMANENTLY_PROTECTED_TRAITS:
+                # Mark permanently protected traits for strongest protection
+                permanent_mask |= (trait_indices == i)
+            elif trait_type in PARTIALLY_PROTECTED_TRAITS:
+                # Mark partially protected traits for moderate protection
+                partial_mask |= (trait_indices == i)
         
         # Apply identity preservation to protected traits
         identity_preserved = embedded.clone()
         
-        if identity_mask.any():
-            # Get identity preservation signal
+        # PERMANENTLY PROTECTED TRAITS: Strongest protection
+        if permanent_mask.any():
+            # Get identity preservation signal for permanent traits
             identity_signal = self.identity_preservation(embedded)
             identity_gate = self.identity_gate(identity_signal)
             
-            # For identity traits, preserve original embeddings more strongly
-            # identity_gate will be close to 1 for identity traits, preserving original
-            # identity_gate will be close to 0 for non-identity traits, allowing change
-            identity_preserved = (
-                embedded * identity_gate +  # Preserve original for identity traits
-                embedded * (1 - identity_gate)  # Allow change for non-identity traits
+            # For permanently protected traits, preserve original embeddings very strongly
+            # identity_gate will be close to 1, preserving original almost completely
+            identity_preserved[permanent_mask] = (
+                embedded[permanent_mask] * 0.95 +  # 95% preserve original
+                embedded[permanent_mask] * identity_gate[permanent_mask] * 0.05  # 5% allow minimal change
+            )
+        
+        # PARTIALLY PROTECTED TRAITS: Moderate protection
+        if partial_mask.any():
+            # Get identity preservation signal for partial traits
+            identity_signal = self.identity_preservation(embedded)
+            identity_gate = self.identity_gate(identity_signal)
+            
+            # For partially protected traits, allow some evolution but preserve core
+            # identity_gate will be moderate, allowing some change but preserving fundamentals
+            identity_preserved[partial_mask] = (
+                embedded[partial_mask] * 0.7 +  # 70% preserve original
+                embedded[partial_mask] * identity_gate[partial_mask] * 0.3  # 30% allow evolution
             )
         
         return identity_preserved 

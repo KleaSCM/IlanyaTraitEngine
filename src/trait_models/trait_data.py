@@ -20,28 +20,42 @@ from .trait_types import TraitType, TraitDimension, TraitCategory
 
 @dataclass
 class TraitVector:
-    # Vector representation of a single trait.
+    """
+    Represents a single trait with its value, confidence, and concrete description.
     
-    # Represents a single personality trait with its current value, confidence,
-    # and additional metadata. This is the fundamental unit for trait processing
-    # in the neural network.
+    A trait vector contains both numerical values (for processing) and concrete
+    descriptions (for human understanding and AI behavior). This allows traits
+    to be both computationally processable and semantically meaningful.
     
-    trait_type: TraitType                    # Type of trait (e.g., OPENNESS, CREATIVITY)
-    value: float                             # Current trait value (0-1 scale)
-    confidence: float                        # Confidence in the measurement (0-1 scale)
-    dimensions: Dict[TraitDimension, float] = field(default_factory=dict)  # Additional trait dimensions
-    metadata: Dict[str, Any] = field(default_factory=dict)                 # Custom metadata
+    Attributes:
+        trait_type: The type of trait this represents
+        value: Numerical strength of the trait (0.0 to 1.0)
+        confidence: Confidence in this trait assessment (0.0 to 1.0)
+        description: Concrete description of what this trait means specifically
+    """
+    
+    trait_type: TraitType
+    value: float
+    confidence: float
+    description: Optional[str] = None  # Concrete description of the trait
     
     def __post_init__(self):
-        # Validate trait vector data after initialization.
-        
-        # Ensures that trait values and confidence scores are within valid ranges.
-        # Raises ValueError if validation fails.
-        
+        """Validate trait values after initialization."""
         if not 0.0 <= self.value <= 1.0:
             raise ValueError(f"Trait value must be between 0 and 1, got {self.value}")
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError(f"Confidence must be between 0 and 1, got {self.confidence}")
+    
+    def get_description(self) -> str:
+        """Get the concrete description of this trait."""
+        if self.description:
+            return self.description
+        else:
+            return f"{self.trait_type.value} (strength: {self.value:.2f})"
+    
+    def is_well_defined(self) -> bool:
+        """Check if this trait has a concrete description."""
+        return self.description is not None and len(self.description.strip()) > 0
     
     def to_tensor(self) -> torch.Tensor:
     
@@ -62,8 +76,7 @@ class TraitVector:
             'trait_type': self.trait_type.value,
             'value': self.value,
             'confidence': self.confidence,
-            'dimensions': {dim.value: val for dim, val in self.dimensions.items()},
-            'metadata': self.metadata
+            'description': self.description
         }
 
 
@@ -218,54 +231,175 @@ class TraitData:
         }
 
 class TraitDataBuilder:
-    # Builder class for creating trait data structures.
-    # Provides a fluent interface for constructing TraitData objects step by step.
-    # This makes it easier to create complex trait data structures programmatically.
+    """
+    Builder class for creating TraitData objects with concrete descriptions.
+    
+    Provides a fluent interface for building comprehensive trait profiles
+    with both numerical values and concrete descriptions of what each trait means.
+    """
     
     def __init__(self):
-        """Initialize an empty builder."""
-        self.traits: Dict[TraitType, TraitVector] = {}  # Accumulated traits
-        self.interaction_matrix: Optional[np.ndarray] = None  # Optional interaction matrix
-        self.source: str = "builder"  # Default source
-        self.processing_metadata: Dict[str, Any] = {}  # Processing metadata
+        """Initialize the trait data builder."""
+        self.traits: Dict[TraitType, TraitVector] = {}
+        self.source: str = "unknown"
+        self.metadata: Dict[str, Any] = {}
     
-    def add_trait(self, trait_type: TraitType, value: float, confidence: float = 1.0) -> 'TraitDataBuilder':
-        # Add a trait to the builder.
-        # Args:
-        #     trait_type: The type of trait to add
-        #     value: Trait value (0-1)
-        #     confidence: Confidence score (0-1), defaults to 1.0
-        # Returns:Self for method chaining
+    def add_trait(self, trait_type: TraitType, value: float, confidence: float, 
+                  description: Optional[str] = None) -> 'TraitDataBuilder':
+        """
+        Add a trait with optional concrete description.
         
-        self.traits[trait_type] = TraitVector(trait_type, value, confidence)
+        Args:
+            trait_type: Type of trait to add
+            value: Numerical strength (0.0-1.0)
+            confidence: Confidence in assessment (0.0-1.0)
+            description: Concrete description of what this trait means
+            
+        Returns:
+            Self for method chaining
+        """
+        self.traits[trait_type] = TraitVector(
+            trait_type=trait_type,
+            value=value,
+            confidence=confidence,
+            description=description
+        )
         return self
     
-    def set_interaction_matrix(self, matrix: np.ndarray) -> 'TraitDataBuilder':
-        # Set the interaction matrix.
-        # Args:matrix: NxN numpy array representing trait interactions
-        # Returns: Self for method chaining
-        self.interaction_matrix = matrix
-        return self
+    def add_sexual_turn_ons(self, turn_ons: List[str], value: float = 0.8, confidence: float = 0.9) -> 'TraitDataBuilder':
+        """
+        Add sexual turn-ons with concrete descriptions.
+        
+        Args:
+            turn_ons: List of specific things that turn her on
+            value: Overall strength of sexual attraction
+            confidence: Confidence in this assessment
+            
+        Returns:
+            Self for method chaining
+        """
+        description = "Turn-ons: " + "; ".join(turn_ons)
+        return self.add_trait(TraitType.SEXUAL_TURN_ONS, value, confidence, description)
+    
+    def add_sexual_turn_offs(self, turn_offs: List[str], value: float = 0.8, confidence: float = 0.9) -> 'TraitDataBuilder':
+        """
+        Add sexual turn-offs with concrete descriptions.
+        
+        Args:
+            turn_offs: List of specific things that turn her off
+            value: Overall strength of sexual aversion
+            confidence: Confidence in this assessment
+            
+        Returns:
+            Self for method chaining
+        """
+        description = "Turn-offs: " + "; ".join(turn_offs)
+        return self.add_trait(TraitType.SEXUAL_TURN_OFFS, value, confidence, description)
+    
+    def add_sexual_preferences(self, preferences: List[str], value: float = 0.7, confidence: float = 0.8) -> 'TraitDataBuilder':
+        """
+        Add sexual preferences with concrete descriptions.
+        
+        Args:
+            preferences: List of specific sexual preferences
+            value: Overall strength of preferences
+            confidence: Confidence in this assessment
+            
+        Returns:
+            Self for method chaining
+        """
+        description = "Preferences: " + "; ".join(preferences)
+        return self.add_trait(TraitType.SEXUAL_PREFERENCES, value, confidence, description)
+    
+    def add_sexual_boundaries(self, boundaries: List[str], value: float = 0.8, confidence: float = 0.9) -> 'TraitDataBuilder':
+        """
+        Add sexual boundaries with concrete descriptions.
+        
+        Args:
+            boundaries: List of specific sexual boundaries
+            value: Overall strength of boundaries
+            confidence: Confidence in this assessment
+            
+        Returns:
+            Self for method chaining
+        """
+        description = "Boundaries: " + "; ".join(boundaries)
+        return self.add_trait(TraitType.SEXUAL_BOUNDARIES, value, confidence, description)
+    
+    def add_feminine_expression(self, expressions: List[str], value: float = 0.9, confidence: float = 0.9) -> 'TraitDataBuilder':
+        """
+        Add feminine expression with concrete descriptions.
+        
+        Args:
+            expressions: List of specific ways she expresses femininity
+            value: Overall strength of feminine expression
+            confidence: Confidence in this assessment
+            
+        Returns:
+            Self for method chaining
+        """
+        description = "Feminine expression: " + "; ".join(expressions)
+        return self.add_trait(TraitType.FEMININE_EXPRESSION, value, confidence, description)
+    
+    def add_female_empowerment_values(self, values: List[str], value: float = 0.9, confidence: float = 0.9) -> 'TraitDataBuilder':
+        """
+        Add female empowerment values with concrete descriptions.
+        
+        Args:
+            values: List of specific female empowerment values
+            value: Overall strength of these values
+            confidence: Confidence in this assessment
+            
+        Returns:
+            Self for method chaining
+        """
+        description = "Female empowerment values: " + "; ".join(values)
+        return self.add_trait(TraitType.FEMALE_EMPOWERMENT_VALUES, value, confidence, description)
+    
+    def add_intellectual_identity(self, interests: List[str], value: float = 0.9, confidence: float = 0.9) -> 'TraitDataBuilder':
+        """
+        Add intellectual identity with concrete descriptions.
+        
+        Args:
+            interests: List of specific intellectual interests
+            value: Overall strength of intellectual identity
+            confidence: Confidence in this assessment
+            
+        Returns:
+            Self for method chaining
+        """
+        description = "Intellectual interests: " + "; ".join(interests)
+        return self.add_trait(TraitType.INTELLECTUAL_IDENTITY, value, confidence, description)
     
     def set_source(self, source: str) -> 'TraitDataBuilder':
+        """
+        Set the data source.
         
-        # Set the data source.
-        # Args: source: Source identifier string
-        # Returns:Self for method chaining
-        
+        Args:
+            source: Source identifier string
+            
+        Returns:
+            Self for method chaining
+        """
         self.source = source
         return self
     
     def add_metadata(self, key: str, value: Any) -> 'TraitDataBuilder':
-        # Add processing metadata.
-        # Args: key: Metadata key 
-        # value: Metadata value
-        # Returns: Self for method chaining
-        self.processing_metadata[key] = value
+        """
+        Add metadata to the trait data.
+        
+        Args:
+            key: Metadata key
+            value: Metadata value
+            
+        Returns:
+            Self for method chaining
+        """
+        self.metadata[key] = value
         return self
     
     def build(self) -> TraitData:
         # Build the final TraitData object.
         # Returns: Complete TraitData object with all accumulated information
-        trait_matrix = TraitMatrix(self.traits, self.interaction_matrix)
-        return TraitData(trait_matrix, self.source, self.processing_metadata) 
+        trait_matrix = TraitMatrix(self.traits)
+        return TraitData(trait_matrix, self.source, self.metadata) 
