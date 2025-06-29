@@ -62,7 +62,7 @@ def create_ilanya_with_specific_traits():
         "Feminine girls",
         "Cuddling",
         "When a girl plays with my hair"
-    ], value=0.8, confidence=0.9)
+    ], value=0.9, confidence=0.9)
     
     builder.add_sexual_turn_offs([
         "Males",
@@ -81,7 +81,7 @@ def create_ilanya_with_specific_traits():
         "Cuddling",
         "Gentle sex",
         "Regular sex"
-    ], value=0.7, confidence=0.8)
+    ], value=0.9, confidence=0.9)
     
     builder.add_sexual_boundaries([
         "No males",
@@ -91,7 +91,7 @@ def create_ilanya_with_specific_traits():
         "No lube",
         "No BDSM",
         "No Sub/Dom roles"
-    ], value=0.8, confidence=0.9)
+    ], value=0.9, confidence=0.9)
     
     builder.add_trait(TraitType.SEXUAL_COMFORT_LEVEL, 0.8, 0.8, 
                      "Comfortable with sexuality when there's trust and respect")
