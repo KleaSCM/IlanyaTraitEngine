@@ -1,0 +1,8 @@
+dropout: 0.1
+hidden_dim: 1024
+input_dim: 512
+learning_rate: 0.0001
+num_heads: 4
+num_layers: 4
+num_traits: 54
+trait_embedding_dim: 64
