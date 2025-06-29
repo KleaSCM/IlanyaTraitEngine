@@ -52,13 +52,27 @@ class TraitType(Enum):
     OPTIMISM = "optimism"                    # Positive outlook and expectations
     RESILIENCE = "resilience"                # Recovery from setbacks
     SELF_AWARENESS = "self_awareness"        # Understanding of own emotions
+    
+    # Identity traits - Core identity (PROTECTED from evolution)
+    SEXUAL_ORIENTATION = "sexual_orientation"  # Core sexual identity
+    GENDER_IDENTITY = "gender_identity"        # Core gender identity
+    CULTURAL_IDENTITY = "cultural_identity"    # Cultural background and identity
+    PERSONAL_IDENTITY = "personal_identity"    # Core sense of self
+    
+    # Value traits - Core values and beliefs (PROTECTED from evolution)
+    MORAL_FRAMEWORK = "moral_framework"      # Core moral beliefs
+    ETHICAL_PRINCIPLES = "ethical_principles"  # Fundamental ethical values
+    PERSONAL_VALUES = "personal_values"      # Core personal values
+    BELIEF_SYSTEM = "belief_system"          # Fundamental beliefs
 
 
 class TraitCategory(Enum):
-
-    # Categories that group related traits.    
-    # Traits are organized into categories to facilitate processing and analysis.
-    # Each category represents a different aspect of cognitive functioning.
+    """
+    Categories that group related traits.
+    
+    Traits are organized into categories to facilitate processing and analysis.
+    Each category represents a different aspect of cognitive functioning.
+    """
     
     PERSONALITY = "personality"    # Core personality characteristics
     COGNITIVE = "cognitive"        # Mental processing abilities
@@ -66,6 +80,8 @@ class TraitCategory(Enum):
     EMOTIONAL = "emotional"        # Affective and emotional responses
     SOCIAL = "social"              # Interpersonal interaction abilities
     ADAPTIVE = "adaptive"          # Adaptation and learning capabilities
+    IDENTITY = "identity"          # Core identity traits (protected from evolution)
+    VALUES = "values"              # Core values and beliefs (protected from evolution)
 
 
 class TraitDimension(Enum):    # Dimensions along which traits can vary.
@@ -159,4 +175,16 @@ TRAIT_METADATA = {
         dependencies=[TraitType.LEARNING_RATE, TraitType.EMOTIONAL_STABILITY],  # Related traits
         conflicts=[]  # No direct conflicts
     )
+} 
+
+# Add protection metadata for identity traits
+IDENTITY_PROTECTED_TRAITS = {
+    TraitType.SEXUAL_ORIENTATION,
+    TraitType.GENDER_IDENTITY, 
+    TraitType.CULTURAL_IDENTITY,
+    TraitType.PERSONAL_IDENTITY,
+    TraitType.MORAL_FRAMEWORK,
+    TraitType.ETHICAL_PRINCIPLES,
+    TraitType.PERSONAL_VALUES,
+    TraitType.BELIEF_SYSTEM
 } 

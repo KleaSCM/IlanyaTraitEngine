@@ -20,7 +20,7 @@ from datetime import datetime
 
 from ..neural_networks.trait_transformer import TraitTransformer, TraitTransformerConfig
 from ..trait_models.trait_data import TraitData, TraitMatrix, TraitVector
-from ..trait_models.trait_types import TraitType, TraitCategory, TRAIT_METADATA, TraitDimension
+from ..trait_models.trait_types import TraitType, TraitCategory, TRAIT_METADATA, TraitDimension, IDENTITY_PROTECTED_TRAITS
 from ..trait_models.trait_state import TraitState, CognitiveState
 
 
@@ -376,30 +376,40 @@ class TraitEngine:
     
     def _apply_trait_evolution(self, trait_data: TraitData, 
                              evolution_signals: np.ndarray) -> TraitData:
+        """
+        Apply evolution signals to trait data.
         
-        # Apply evolution signals to trait data.
+        Uses evolution signals to modify trait values while respecting
+        plasticity constraints and value bounds. PROTECTS identity traits
+        from evolution to preserve core identity.
         
-        # Uses evolution signals to modify trait values while respecting
-        # plasticity constraints and value bounds.
-        
-        # Args:
-        #     trait_data: Original trait data
-        #     evolution_signals: Signals indicating how traits should evolve
+        Args:
+            trait_data: Original trait data
+            evolution_signals: Signals indicating how traits should evolve
             
-        # Returns:
-        #     Evolved trait data with updated values
-        
+        Returns:
+            Evolved trait data with updated values (identity traits unchanged)
+        """
         evolved_traits = {}
         
         for i, (trait_type, trait_vector) in enumerate(trait_data.trait_matrix.traits.items()):
             evolution_signal = evolution_signals[i]
             
-            # Calculate new value with evolution
+            # IDENTITY PROTECTION: Skip evolution for protected identity traits
+            if trait_type in IDENTITY_PROTECTED_TRAITS:
+                # Keep identity traits exactly as they are - no evolution
+                evolved_traits[trait_type] = TraitVector(
+                    trait_type=trait_type,
+                    value=trait_vector.value,  # Unchanged
+                    confidence=trait_vector.confidence  # Unchanged
+                )
+                continue
+            
+            # Calculate new value with evolution (only for non-identity traits)
             current_value = trait_vector.value
             evolution_delta = evolution_signal * self.config.evolution_rate
             
             # Apply plasticity constraints from trait metadata
-            from ..trait_models.trait_types import TRAIT_METADATA, TraitDimension
             if trait_type in TRAIT_METADATA:
                 plasticity = TRAIT_METADATA[trait_type].dimensions.get(TraitDimension.PLASTICITY, 0.5)
                 evolution_delta *= plasticity
